@@ -16,36 +16,39 @@
 
 // Types from here come from the @types/node package in this project's
 // devDependencies in package.json.
-import readline from 'node:readline/promises'
-import process from 'node:process'
+import readline from 'node:readline/promises';
+import process from 'node:process';
 
 // These types are not correctly constructed. It is up to you to figure out what
 // to put in.
-type UnsanitizedNumber = {}
-type SanitizedNumber = {}
-type InvalidNumber = {}
+type UnsanitizedNumber = {
+  input: 'string';
+  kind: 'unsanitized-number';
+};
+type SanitizedNumber = {
+  kind: 'sanitized-number';
+  value: number;
+};
+type InvalidNumber = {};
 
 // This type is valid though. A freebie!
-type AppNumber =
-  | InvalidNumber
-  | SanitizedNumber
-  | UnsanitizedNumber
+type AppNumber = InvalidNumber | SanitizedNumber | UnsanitizedNumber;
 
 /**
  * Takes a string and converts it to a number. This is the first stage of
  * providing our valid data.
  */
-const unsanitizedNumber = (input) => {
-  const num = parseInt(input)
-  if(isNaN(num)) {
-    return null
+const unsanitizedNumber = (input: string) => {
+  const num = parseInt(input);
+  if (isNaN(num)) {
+    return null;
   } else {
     return {
       kind: 'unsanitized-number',
       value: parseInt(input),
-    }
+    };
   }
-}
+};
 
 /**
  * The number we got from our first stage is a number of any value. As the
@@ -53,42 +56,42 @@ const unsanitizedNumber = (input) => {
  * More practical applications of this could be making sure an email input by a
  * user is indeed formatted as an email.
  */
-const sanitizedNumber = (input) => {
-  if(input == null) {
+const sanitizedNumber = (input: SanitizedNumber) => {
+  if (input == null) {
     // If null, just pass the error along.
-    return null
+    return null;
   } else {
-    if(input.value > 0 && input.value <= 10) {
+    if (input.value > 0 && input.value <= 10) {
       return {
         kind: 'sanitized-number',
         value: input,
-      }
+      };
     } else {
-      return null
+      return null;
     }
   }
-}
+};
 
 // Non-arrow function.
 // Note this function does not return anything. How to annotate it?
 // We also don't particularly care what is passed in. How do we annotate a
 // parameter whose shape we care nothing about?
 function showError(x) {
-  console.error(`${x} is not what I asked for.`)
+  console.error(`${x} is not what I asked for.`);
 }
 
 // Hack to make async functions work at the root of a module.
 (async () => {
-  console.log('Give me a number between 1 and 10:')
+  console.log('Give me a number between 1 and 10:');
   // Our final number doesn't exist yet. Must be set to an invalid state so
   // nothing can fall through.
   let finalNumber = {
     kind: 'invalid-number',
-  }
+  };
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
-  })
+  });
   // This is a "do-while" loop. First the body (everything between the curly
   // braces) is executed. Then the condition is evaluated in the "while"
   // condition that comes after the curly braces. If the expression is true,
@@ -97,23 +100,23 @@ function showError(x) {
   // do-while loops are good for "do something once, then check to see if I need
   // to keep doing it".
   do {
-    const input = await rl.question('Give me a number between 1 and 10:')
+    const input = await rl.question('Give me a number between 1 and 10:');
     // Normally we wouldn't call these numStep1 and numStep2, but this is to
     // help guide through the flow of the program.
-    const numStep1 = unsanitizedNumber(input)
-    const numStep2 = sanitizedNumber(numStep1)
-    if(numStep2 != null) {
-      finalNumber = numStep2
+    const numStep1 = unsanitizedNumber(input);
+    const numStep2 = sanitizedNumber(numStep1);
+    if (numStep2 != null) {
+      finalNumber = numStep2;
     } else {
-      showError(input)
+      showError(input);
     }
-  } while(finalNumber.kind != 'sanitized-number')
+  } while (finalNumber.kind != 'sanitized-number');
 
-  console.log(`You did what I wanted and gave me ${finalNumber.value}!`)
-  process.exit(0)
+  console.log(`You did what I wanted and gave me ${finalNumber.value}!`);
+  process.exit(0);
 
   // Immediately call the function we just declared to complete the async hack.
-})()
+})();
 
 ////////////////////////////////////////////////////////////////////////////////
 // The section below does not get executed. This stands as a means of asserting
@@ -122,31 +125,30 @@ function showError(x) {
 
 const invalidTestData: InvalidNumber = {
   kind: 'invalid-number',
-}
+};
 
 const unsanitizedTestData: UnsanitizedNumber = {
   kind: 'unsanitized-number',
   value: 0,
-}
+};
 
 const sanitizedTestData: SanitizedNumber = {
   kind: 'sanitized-number',
   value: 0,
-}
+};
 
 // The declare keyword lets us declare a type from some global/external source.
 // It's our way to tell TypeScript to pretend this function exists, and this is
 // its signature.
-declare function testUnsanitized(x: UnsanitizedNumber): void
-declare function testSanitized(x: SanitizedNumber): void
-declare function testInvalid(x: InvalidNumber): void
-declare function getNumber(): AppNumber
+declare function testUnsanitized(x: UnsanitizedNumber): void;
+declare function testSanitized(x: SanitizedNumber): void;
+declare function testInvalid(x: InvalidNumber): void;
+declare function getNumber(): AppNumber;
 
 // Give us an unused function so these calls don't break the actual runtime.
 const unusedFn = () => {
-
   // Positive case.
-  testUnsanitized(unsanitizedTestData)
+  testUnsanitized(unsanitizedTestData);
   // This annotated comment below will prevent a type error from showing up when
   // we run `tsc`. It will inversely also create an error if the below
   // expression would not normally produce a type error.
@@ -164,42 +166,42 @@ const unusedFn = () => {
   // will not prefix with @ to prevent it from triggering).
   //
   // @ts-expect-error
-  testUnsanitized(sanitizedTestData)
+  testUnsanitized(sanitizedTestData);
   // @ts-expect-error
-  testUnsanitized(invalidTestData)
+  testUnsanitized(invalidTestData);
   // @ts-expect-error
-  testUnsanitized(sanitizedTestData)
+  testUnsanitized(sanitizedTestData);
 
-  testSanitized(sanitizedTestData)
+  testSanitized(sanitizedTestData);
   // @ts-expect-error
-  testSanitized(invalidTestData)
+  testSanitized(invalidTestData);
   // @ts-expect-error
-  testSanitized(unsanitizedTestData)
+  testSanitized(unsanitizedTestData);
 
-  testInvalid(invalidTestData)
+  testInvalid(invalidTestData);
   // @ts-expect-error
-  testInvalid(sanitizedTestData)
+  testInvalid(sanitizedTestData);
   // @ts-expect-error
-  testInvalid(unsanitizedTestData)
+  testInvalid(unsanitizedTestData);
 
-  const number: AppNumber = getNumber()
+  const number: AppNumber = getNumber();
   // We cannot use the value property all the time - the case of InvalidNumber
   // has no value (any value would be meaningless, so we just leave it off).
   // @ts-expect-error
-  number.value
+  number.value;
 
   const getValue = (num: AppNumber): number => {
-    switch(num.kind) {
+    switch (num.kind) {
       case 'invalid-number':
         // @ts-expect-error
-        return num.value
+        return num.value;
       case 'sanitized-number':
         // This works because we have narrowed the type.
-        return num.value
+        return num.value;
       case 'unsanitized-number':
-        return num.value
+        return num.value;
     }
-  }
+  };
 
-  getValue(number)
-}
+  getValue(number);
+};
