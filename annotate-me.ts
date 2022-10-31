@@ -76,7 +76,7 @@ const sanitizedNumber = (input: SanitizedNumber) => {
 // Note this function does not return anything. How to annotate it?
 // We also don't particularly care what is passed in. How do we annotate a
 // parameter whose shape we care nothing about?
-function showError(x) {
+function showError(x: any) {
   console.error(`${x} is not what I asked for.`);
 }
 
