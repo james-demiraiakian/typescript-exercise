@@ -22,17 +22,14 @@ import process from 'node:process';
 // These types are not correctly constructed. It is up to you to figure out what
 // to put in.
 type UnsanitizedNumber = {
-  //<------
   kind: 'unsanitized-number';
   value: number;
 };
 type SanitizedNumber = {
-  //<------
   kind: 'sanitized-number';
   value: number;
 };
 type InvalidNumber = {
-  //<------
   kind: 'invalid-number';
 };
 
@@ -44,7 +41,6 @@ type AppNumber = InvalidNumber | SanitizedNumber | UnsanitizedNumber;
  * providing our valid data.
  */
 const unsanitizedNumber = (input: string): UnsanitizedNumber | null => {
-  //<------
   const num = parseInt(input);
   if (isNaN(num)) {
     return null;
@@ -63,9 +59,8 @@ const unsanitizedNumber = (input: string): UnsanitizedNumber | null => {
  * user is indeed formatted as an email.
  */
 const sanitizedNumber = (
-  input: UnsanitizedNumber | null //<------
+  input: UnsanitizedNumber | null
 ): SanitizedNumber | null => {
-  //<------
   if (input == null) {
     // If null, just pass the error along.
     return null;
@@ -73,7 +68,7 @@ const sanitizedNumber = (
     if (input.value > 0 && input.value <= 10) {
       return {
         kind: 'sanitized-number',
-        value: input.value, //<------
+        value: input.value,
       };
     } else {
       return null;
